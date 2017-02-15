@@ -29,6 +29,12 @@ class Face(color: Int) {
 
     return true
   }
+  
+  def copy(): Face = {
+    var newFace = new Face(0)
+    newFace.face = this.face.clone
+    newFace
+  }
 
   def rotate(clockwise: Boolean) {
 
