@@ -1,3 +1,4 @@
+package main.scala
 
 class Face(color: Int) {
   var face = Array.fill(3, 3)(color)

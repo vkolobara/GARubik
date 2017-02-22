@@ -1,3 +1,4 @@
+package main.scala
 
 import scala.util.control.Breaks._;
 import org.jgap._;
@@ -22,7 +23,7 @@ object Main extends App {
   var conf: Configuration = new DefaultConfiguration
   conf.setPreservFittestIndividual(true)
   conf.setKeepPopulationSizeConstant(true)
-  conf.setFitnessFunction(new TestFitness(rub))
+  conf.setFitnessFunction(new CubiesFitness(rub))
 
   val sampleGenes: List[Gene] = (for (i <- 1 to 40) yield new IntegerGene(conf, 0, 11)).toList
 
@@ -39,19 +40,59 @@ object Main extends App {
 
     println("Gen " + i + ": current best = " + fittest.getFitnessValue);
   }
-  
+
   println(population.getFittestChromosome)
 
 }
 
-class TestFitness(rubiksCube: RubiksCube) extends FitnessFunction {
+class CubiesFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
+
+  def evaluate(a_subject: IChromosome): Double = {
+    
+    var rubiks = rubiksCube.copy
+
+    var fitness = 0.0;
+    
+    breakable {
+      for (gene <- a_subject.getGenes) {
+        rubiks.rotateSide(gene.getAllele.asInstanceOf[Int])
+        fitness += evaluateCube(rubiks)
+        if (rubiks.isSolved) break;
+      }
+    }
+    println(rubiks)
+    
+    fitness/40.0;
+
+  }
+
+  def evaluateCube(cube: RubiksCube): Double = {
+    var sum = 0.0
+
+    var tmpSum = 0.0
+    for (i <- 0 to 11) {
+      if (rubiksCube.getEdgeCubie(i).isCorrect(rubiksCube)) tmpSum += 1
+    }
+
+    sum += 4 * tmpSum;
+
+    tmpSum = 0.0;
+
+    for (i <- 0 to 7) {
+      if (rubiksCube.getCornerCubie(i).isCorrect(rubiksCube)) tmpSum += 1
+    }
+
+    sum + 6 * tmpSum
+  }
+}
+
+class SideCompleteFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
 
   private val maxFit = 40.0;
-  private val rubik = rubiksCube
 
   def evaluate(a_subject: IChromosome): Double = {
     var fitness = maxFit;
-    var rubiks = rubik.copy
+    var rubiks = rubiksCube.copy
 
     breakable {
       for (gene <- a_subject.getGenes) {
@@ -61,12 +102,10 @@ class TestFitness(rubiksCube: RubiksCube) extends FitnessFunction {
       }
     }
 
-    println(rubiks)
-    
-    fitness + calculateRubikFitness(rubiks);
+    fitness + sumSides(rubiks);
   }
 
-  private def calculateRubikFitness(cube: RubiksCube): Double = {
+  def sumSides(cube: RubiksCube): Double = {
     var sum = 0.0;
 
     for (side <- cube.sides) {

@@ -1,3 +1,5 @@
+package main.scala
+
 import Array._
 
 class RubiksCube {
@@ -13,6 +15,43 @@ class RubiksCube {
 
   var sides = front :: back :: top :: bottom :: left :: right :: Nil
 
+  def getCornerCubie(index: Int): CornerCubie = {
+    index match {
+      case 0 => new CornerCubie((2, top.elem(2)(0)), (0, front.elem(0)(0)), (4, left.elem(0)(2)))
+      case 1 => new CornerCubie((2, top.elem(2)(2)), (0, front.elem(0)(2)), (5, right.elem(0)(0)))
+      
+      case 2 => new CornerCubie((3, bottom.elem(0)(0)), (0, front.elem(2)(0)), (4, left.elem(2)(2)))
+      case 3 => new CornerCubie((3, bottom.elem(0)(2)), (0, front.elem(2)(2)), (5, right.elem(2)(0)))
+      
+      case 4 => new CornerCubie((2, top.elem(0)(2)), (1, back.elem(0)(0)), (5, right.elem(0)(2)))
+      case 5 => new CornerCubie((2, top.elem(0)(0)), (1, back.elem(0)(2)), (4, left.elem(0)(0)))
+      
+      case 6 => new CornerCubie((3, bottom.elem(2)(0)), (1, back.elem(2)(2)), (4, left.elem(2)(0)))
+      case 7 => new CornerCubie((3, bottom.elem(2)(2)), (1, back.elem(2)(0)), (5, right.elem(2)(2)))
+    }
+  }
+  
+  def getEdgeCubie(index: Int): EdgeCubie = {
+    index match {
+      case 0 => new EdgeCubie((0, front.elem(1)(0)), (4, left.elem(1)(2)))
+      case 1 => new EdgeCubie((0, front.elem(1)(2)), (5, right.elem(1)(0)))
+      case 2 => new EdgeCubie((0, front.elem(0)(1)), (2, top.elem(2)(1)))
+      case 3 => new EdgeCubie((0, front.elem(2)(1)), (3, bottom.elem(0)(1)))
+
+      case 4 => new EdgeCubie((1, back.elem(1)(0)), (5, right.elem(1)(2)))
+      case 5 => new EdgeCubie((1, back.elem(1)(2)), (4, left.elem(1)(0)))
+      case 6 => new EdgeCubie((1, back.elem(0)(1)), (2, top.elem(0)(1)))
+      case 7 => new EdgeCubie((1, back.elem(2)(1)), (3, bottom.elem(2)(1)))
+      
+      case 8 => new EdgeCubie((5, right.elem(0)(1)), (2, top.elem(1)(2)))
+      case 9 => new EdgeCubie((5, right.elem(2)(1)), (3, bottom.elem(1)(2)))
+      
+      case 10 => new EdgeCubie((4, left.elem(0)(1)), (2, top.elem(1)(0)))
+      case 11 => new EdgeCubie((4, left.elem(2)(1)), (3, bottom.elem(1)(0)))
+    }
+    
+  }
+  
   def isSolved(): Boolean = {
     def isSolved(sides: List[Face]): Boolean = {
 
@@ -38,7 +77,7 @@ class RubiksCube {
     newRubik
     
   }
-
+  
   /**
    * Faces appear in order: left, right, top, bottom (looking from current face to rotate)
    */
