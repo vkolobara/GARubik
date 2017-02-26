@@ -11,6 +11,8 @@ import org.jgap.FitnessFunction
 import org.jgap.IChromosome
 
 import Array._
+import org.jgap.impl.CrossoverOperator
+import org.jgap.impl.MutationOperator
 
 object Main extends App {
 
@@ -20,17 +22,19 @@ object Main extends App {
   println(rub)
   println(rub.isSolved)
 
+  println(rub.copy)
+
   var conf: Configuration = new DefaultConfiguration
   conf.setPreservFittestIndividual(true)
   conf.setKeepPopulationSizeConstant(true)
-  conf.setFitnessFunction(new CubiesFitness(rub))
+  conf.setFitnessFunction(new SideCompleteFitness(rub))
 
   val sampleGenes: List[Gene] = (for (i <- 1 to 40) yield new IntegerGene(conf, 0, 11)).toList
 
   val sampleChromosome = new Chromosome(conf, sampleGenes.toArray)
   conf.setSampleChromosome(sampleChromosome)
 
-  conf.setPopulationSize(100)
+  conf.setPopulationSize(60)
 
   var population: Genotype = Genotype.randomInitialGenotype(conf)
 
@@ -43,27 +47,48 @@ object Main extends App {
 
   println(population.getFittestChromosome)
 
+  println(rub)
+  val rubCopy = rub.copy
+
+  breakable {
+    for (gene <- population.getFittestChromosome.getGenes) {
+      rubCopy.rotateSide(gene.getAllele.asInstanceOf[Int])
+      if (rubCopy.isSolved) break;
+    }
+  }
+  println(rubCopy)
+
 }
 
 class CubiesFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
 
   def evaluate(a_subject: IChromosome): Double = {
-    
+
     var rubiks = rubiksCube.copy
 
-    var fitness = 0.0;
-    
     breakable {
       for (gene <- a_subject.getGenes) {
         rubiks.rotateSide(gene.getAllele.asInstanceOf[Int])
-        fitness += evaluateCube(rubiks)
         if (rubiks.isSolved) break;
       }
     }
-    println(rubiks)
-    
-    fitness/40.0;
 
+    evaluateCube(rubiks) + sumSides(rubiks)
+  }
+
+    def sumSides(cube: RubiksCube): Double = {
+    var sum = 0.0;
+
+    for (side <- cube.sides) {
+      val center = side.elem(1)(1)
+      for (row <- 0 to 2) {
+        for (col <- 0 to 2)
+          if (!(row == 1 && col == 1) && side.face(row)(col) == center) sum += 1
+      }
+
+    }
+
+    sum
   }
 
   def evaluateCube(cube: RubiksCube): Double = {
@@ -88,21 +113,17 @@ class CubiesFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
 
 class SideCompleteFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
 
-  private val maxFit = 40.0;
-
   def evaluate(a_subject: IChromosome): Double = {
-    var fitness = maxFit;
     var rubiks = rubiksCube.copy
 
     breakable {
       for (gene <- a_subject.getGenes) {
         rubiks.rotateSide(gene.getAllele.asInstanceOf[Int])
-        fitness = fitness - 1
         if (rubiks.isSolved) break;
       }
     }
 
-    fitness + sumSides(rubiks);
+    sumSides(rubiks)
   }
 
   def sumSides(cube: RubiksCube): Double = {
@@ -112,7 +133,7 @@ class SideCompleteFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
       val center = side.elem(1)(1)
       for (row <- 0 to 2) {
         for (col <- 0 to 2)
-          if (side.face(row)(col) == center) sum += 1
+          if (!(row == 1 && col == 1) && side.face(row)(col) == center) sum += 1
       }
 
     }
