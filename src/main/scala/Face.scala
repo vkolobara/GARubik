@@ -1,23 +1,25 @@
 package main.scala
 
-class Face(color: Int) {
+import java.util.Arrays
+
+class Face(color: Char) {
   var face = Array.fill(3, 3)(color)
 
   def elem(i: Int)(j: Int) = face(i)(j)
 
-  def getRow(index: Int): Array[Int] = {
+  def getRow(index: Int): Array[Char] = {
     face(index)
   }
 
-  def getColumn(index: Int): Array[Int] = {
+  def getColumn(index: Int): Array[Char] = {
     face.map { _(index) }
   }
 
-  def setRow(index: Int, newRow: Array[Int]) = {
+  def setRow(index: Int, newRow: Array[Char]) = {
     face(index) = newRow;
   }
 
-  def setColumn(index: Int, newColumn: Array[Int]) = {
+  def setColumn(index: Int, newColumn: Array[Char]) = {
     for (i <- 0 to 2) face(i)(index) = newColumn(i)
   }
 
@@ -33,7 +35,7 @@ class Face(color: Int) {
   
   def copy(): Face = {
     var newFace = new Face(0)
-    newFace.face = this.face.clone
+    newFace.face = this.face map (_.clone)
     newFace
   }
 

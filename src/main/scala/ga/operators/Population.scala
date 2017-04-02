@@ -12,5 +12,9 @@ class Population(val size: Int) {
   }
   
   def getBest() = population.maxBy(_.fitness)
+
+  def average = {
+    1.0 * population.map(_.fitness).sum / size
+  }
   
 }
