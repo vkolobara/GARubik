@@ -11,8 +11,16 @@ import org.jgap.FitnessFunction
 import org.jgap.IChromosome
 
 import Array._
-import org.jgap.impl.CrossoverOperator
-import org.jgap.impl.MutationOperator
+import main.scala.ga.operators.SteadyStateAlgorithm
+import main.scala.ga.operators.OnePointCrossover
+import main.scala.ga.operators.SimpleMutation
+import main.scala.ga.operators.TournamentSelection
+import main.scala.ga.operators.SideCompleteFitness
+import main.scala.ga.operators.CubiesFitness
+import main.scala.ga.operators.MaxCubiesFitness
+import main.scala.ga.operators.SideCompleteFitness
+import main.scala.ga.operators.MaxCubiesFitness
+import main.scala.ga.operators.GreedyMutation
 
 object Main extends App {
 
@@ -22,123 +30,22 @@ object Main extends App {
   println(rub)
   println(rub.isSolved)
 
-  println(rub.copy)
+  val crossover = new OnePointCrossover
+  val mutation = new GreedyMutation
+  val selection = new TournamentSelection(3)
+  
+  val steadyState = new SteadyStateAlgorithm(crossover, mutation, selection, 100);
+  
+  val fitness = new MaxCubiesFitness(rub)
+  val popSize = 50
+  val solSize = 40
+  val min = 0 
+  val max = 12
+    
+  val best = steadyState.run(fitness, popSize, solSize, min, max)
 
-  var conf: Configuration = new DefaultConfiguration
-  conf.setPreservFittestIndividual(true)
-  conf.setKeepPopulationSizeConstant(true)
-  conf.setFitnessFunction(new SideCompleteFitness(rub))
-
-  val sampleGenes: List[Gene] = (for (i <- 1 to 40) yield new IntegerGene(conf, 0, 11)).toList
-
-  val sampleChromosome = new Chromosome(conf, sampleGenes.toArray)
-  conf.setSampleChromosome(sampleChromosome)
-
-  conf.setPopulationSize(60)
-
-  var population: Genotype = Genotype.randomInitialGenotype(conf)
-
-  for (i <- 1 to 1000) {
-    population.evolve();
-    val fittest: IChromosome = population.getFittestChromosome
-
-    println("Gen " + i + ": current best = " + fittest.getFitnessValue);
-  }
-
-  println(population.getFittestChromosome)
-
-  println(rub)
-  val rubCopy = rub.copy
-
-  breakable {
-    for (gene <- population.getFittestChromosome.getGenes) {
-      rubCopy.rotateSide(gene.getAllele.asInstanceOf[Int])
-      if (rubCopy.isSolved) break;
-    }
-  }
-  println(rubCopy)
-
+  println(best.fitness)
+  
 }
 
-class CubiesFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
 
-  def evaluate(a_subject: IChromosome): Double = {
-
-    var rubiks = rubiksCube.copy
-
-    breakable {
-      for (gene <- a_subject.getGenes) {
-        rubiks.rotateSide(gene.getAllele.asInstanceOf[Int])
-        if (rubiks.isSolved) break;
-      }
-    }
-
-    evaluateCube(rubiks) + sumSides(rubiks)
-  }
-
-    def sumSides(cube: RubiksCube): Double = {
-    var sum = 0.0;
-
-    for (side <- cube.sides) {
-      val center = side.elem(1)(1)
-      for (row <- 0 to 2) {
-        for (col <- 0 to 2)
-          if (!(row == 1 && col == 1) && side.face(row)(col) == center) sum += 1
-      }
-
-    }
-
-    sum
-  }
-
-  def evaluateCube(cube: RubiksCube): Double = {
-    var sum = 0.0
-
-    var tmpSum = 0.0
-    for (i <- 0 to 11) {
-      if (rubiksCube.getEdgeCubie(i).isCorrect(rubiksCube)) tmpSum += 1
-    }
-
-    sum += 4 * tmpSum;
-
-    tmpSum = 0.0;
-
-    for (i <- 0 to 7) {
-      if (rubiksCube.getCornerCubie(i).isCorrect(rubiksCube)) tmpSum += 1
-    }
-
-    sum + 6 * tmpSum
-  }
-}
-
-class SideCompleteFitness(val rubiksCube: RubiksCube) extends FitnessFunction {
-
-  def evaluate(a_subject: IChromosome): Double = {
-    var rubiks = rubiksCube.copy
-
-    breakable {
-      for (gene <- a_subject.getGenes) {
-        rubiks.rotateSide(gene.getAllele.asInstanceOf[Int])
-        if (rubiks.isSolved) break;
-      }
-    }
-
-    sumSides(rubiks)
-  }
-
-  def sumSides(cube: RubiksCube): Double = {
-    var sum = 0.0;
-
-    for (side <- cube.sides) {
-      val center = side.elem(1)(1)
-      for (row <- 0 to 2) {
-        for (col <- 0 to 2)
-          if (!(row == 1 && col == 1) && side.face(row)(col) == center) sum += 1
-      }
-
-    }
-
-    sum
-  }
-
-}

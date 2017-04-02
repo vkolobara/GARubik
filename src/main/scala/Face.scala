@@ -33,7 +33,7 @@ class Face(color: Int) {
   
   def copy(): Face = {
     var newFace = new Face(0)
-    newFace.face = face.map(_.clone)
+    newFace.face = this.face.clone
     newFace
   }
 
