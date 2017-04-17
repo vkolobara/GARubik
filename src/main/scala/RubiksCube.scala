@@ -268,10 +268,14 @@ class RubiksCube {
   def scramble(numRotations: Int) = {
     val rand = scala.util.Random
     var ret: Vector[Int] = Vector.empty
+    
     for (i <- 1 to numRotations) {
       val side = rand.nextInt(6)
-      rotateSide(side, rand.nextBoolean)
-      ret = ret :+ side
+      val clockwise = rand.nextBoolean
+      rotateSide(side, clockwise)
+      var value = side * 2;
+      if (!clockwise) value += 1
+      ret = ret :+ value
     }
 
     ret
