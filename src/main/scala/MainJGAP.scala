@@ -18,17 +18,17 @@ import main.java.GreedyMutation
 object MainJGAP extends App {
   var rub = new RubiksCube
 
-  val scramble = rub.scramble(10)
+  val scramble = rub.scramble(8)
   println(rub)
   println(rub.isSolved)
 
   println(rub.copy)
 
   var conf: Configuration = new DefaultConfiguration
-  conf.setPreservFittestIndividual(true)
+  conf.setPreservFittestIndividual(false)
   conf.setKeepPopulationSizeConstant(true)
   conf.setFitnessFunction(new SideCompleteFitness(rub))
-  conf.addGeneticOperator(new GreedyMutation(conf, 30))
+  conf.addGeneticOperator(new GreedyMutation(conf, 1))
 
   val sampleGenes: List[Gene] = (for (i <- 1 to 40) yield new IntegerGene(conf, 0, 17)).toList
 
@@ -39,7 +39,7 @@ object MainJGAP extends App {
 
   var population: Genotype = Genotype.randomInitialGenotype(conf)
 
-  for (i <- 1 to 10000) {
+  for (i <- 1 to 1000) {
     population.evolve();
     val fittest: IChromosome = population.getFittestChromosome
 
