@@ -3,7 +3,7 @@
  \usepackage{url}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
-
+\usepackage[linguistics]{forest}
 \makeatletter
 \renewcommand{\ALG@name}{Algoritam}
 \makeatother
@@ -20,14 +20,24 @@
 \author{Vinko Kolobara}
 
 % TODO: Navedite ime i prezime voditelja.
-\voditelj{Domagoj Jakobović}
+\voditelj{prof.dr.sc. Domagoj Jakobović}
 
 \maketitle
 
 \tableofcontents
 
 \chapter{Uvod}
-Uvod.
+
+Rubikova kocka je logička igra jednostavnih pravila, ali s velikim brojem mogućih stanja igre i složenim (za običnog čovjeka) algoritmima za rješavanje. Zbog brojnosti stanja naivne metode za rješavanje su nepodobne i neefikasne. 
+
+U ovom radu će se taj problem pokušati riješiti evolucijskim algoritmima, točnije genetskim algoritmom i genetskim programiranjem. Kako su se ti algoritmi pokazali efikasnim za rješavanje složenih problema (generiranje rasporeda, aproksimacije funkcija, učenje neuronskih mreža \dots), tako bi se mogli pokazati efikasnima i za problem rubikove kocke. 
+
+Za pristup genetskim algoritmom, ideja je učiti rješenje za samo jednu kocku koje će se prikazati kao niz rotacija (što kraći mogući) koje će dovesti do ciljnog stanja ili što bliže ciljnom stanju.
+
+S druge strane, pokušaj genetskim programiranjem bit će usmjeren na pronalaženje genetskog programa koji će bilo koju rubikovu kocku naći rješenje (ili doći dovoljno blizu rješenju) u što manjem broju rotacija. Točnije, za "svako stanje" će biti u stanju odrediti koja rotacija će ga dovesti u najbolje sljedeće stanje.
+
+Ovaj problem otežava činjenica što je za navedeni problem jako teško naći funkciju koja će odrediti kvalitetu neke rotacije u nekom stanju. Teško je garantirati da se već ispravno pozicioniranih par strana kocke, neće pokvariti u procesu postavljanja ostalih strana.
+
 
 \chapter{Problem rubikove kocke}
 \section{Definicija}
@@ -35,8 +45,8 @@ Uvod.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.45\textwidth]{image/scrambled_rubik's_cube.png}
-\includegraphics[width=0.45\textwidth]{image/rubik_cube_goal_state.jpg}
+\includegraphics[width=0.45\textwidth]{image/rubik_cube_scrambled.png}
+\includegraphics[width=0.45\textwidth]{image/rubik_cube_solved.png}
 \caption{Primjer nekog nasumičnog početnog stanja rubikove kocke (lijeva slika) i prikaz ciljnog stanja (desna slika) }
 \end{figure}
 
@@ -67,23 +77,33 @@ Rubikova kocka je logička igra općenito dimenzija $N\times N\times N$ u kojoj 
 \item R2 - desna strana dva puta u smjeru kazaljke sata
 \end{itemize}
 
-Svaka strana se može prikazati kao $NxN$ matrica sa određenim bojama na poljima. Dodatno, može se uvesti i pojam kockice \engl{cubie}, i to dvije vrste, kutna \engl{Corner Cubie} i rubna \engl{Edge Cubie}. Svaka kutna kockica na sebi ima 3 boje, i može biti u 2 osnovna stanja: ispravno orijentirana (kada su sve boje na pravim mjestima) i pogrešno orijentirana. Svaka rubna kockica sastoji se od 2 boje, i može biti u ista 2 stanja kao i kutna. 
+
+Svaka strana se može prikazati kao $N\times N$ matrica sa određenim bojama na poljima. Dodatno, može se uvesti i pojam kockice \engl{cubie}, i to dvije vrste, kutna \engl{Corner Cubie} i rubna \engl{Edge Cubie}. Svaka kutna kockica na sebi ima 3 boje, i može biti u 2 osnovna stanja: ispravno orijentirana (kada su sve boje na pravim mjestima) i pogrešno orijentirana. Svaka rubna kockica sastoji se od 2 boje, i može biti u ista 2 stanja kao i kutna. 
 Na kocki postoji 8 kutnih i 12 rubnih kockica.
 
-%SLIKA EDGE I CORNER CUBIE
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{image/corner_cubie.png}
+\includegraphics[width=0.45\textwidth]{image/edge_cubie.png}
+\caption{Primjer kutne (lijeva slika) i rubne kockice (desna slika) }
+\end{figure}
+
+
+\section{Standardni algoritmi za rješavanje}
 
 Broj stanja u kojima se rubikova kocka može naći iznosi oko 43 kvintilijuna što je popriličan broj i obična metoda grubom silom bi bila neuspješna. Zbog toga postoje brojni uspješni algoritmi kojima se može brzo i efikasno doći do rješenja.
 
 Najuspješniji algoritmi koriste teoriju grupa i činjenicu da kada dođu u određeni skup stanja (grupu), ako se uzme određeni podskup rotacija, nemoguće je "pogoršati" rješenje već samo prijeći u sljedeću grupu u kojoj ima manje stanja i koja je bliža ciljnom rješenju. Primjeri takvih algoritama su Thistlewaite, Kociemba, Korf\dots
 
-Kako je ovo kombinatorni problem i jako složen za uobičajeno rješavanje, pokušaj u ovom seminaru bit će usmjeren na rješavanje rubikove kocke upotrebon samo evolucijskih algoritama, bez korištenja dodatnih informacija iz teorije grupa i sličnog.
+Kako je ovo kombinatorni problem i jako složen za uobičajeno rješavanje, pokušaj u ovom seminaru bit će usmjeren na rješavanje rubikove kocke upotrebom samo evolucijskih algoritama, bez korištenja dodatnih informacija iz teorije grupa i sličnog.
 
 \section{Programska reprezentacija}
+Rubikova kocka se u implementaciji sastoji od 6 strana, od kojih je svaka strana $N\times N$ matrica koja sadrži oznaku boje pojedinog elementa. Oznaka boje je cijeli broj iz intervala $[0, 5]$. Svaka kocka može vratiti i $i$-tu rubnu ili kutnu kockicu, gdje je i iz intervala $[0, 12]$ za rubne, a iz intervala $[0, 8]$ za kutne. 
 
+Omogućeno je i rotiranje kocke na 2 načina: predavanjem indeksa stranice i oznake radi li se u smjeru kazaljke ili obrnuto od kazaljke na satu; ili predavanjem cijelog broja od 0-17 za kojeg metoda automatski računa koju stranu i u kojem smjeru rotira.
 
 \chapter{Genetski algoritam}
-Ukratko što je GA i primjena na rubikovu kocku.
 
 \section{Opis genetskog algoritma}
 Genetski algoritam pripada evolucijskim algoritmima i pokušava korištenjem genetskih operatora (križanje, mutacija, selekcija) doći do rješenja problema. Sastoji se od populacije od $N$ jedinki, svaka jedinka sadrži mjeru sposobnosti \engl{fitness} koja označava koliko je ta jedinka blizu ciljnom rješenju, a svaka jedinka se sastoji od $m$ gena koji predstavljaju dio rješenja. 
@@ -113,7 +133,14 @@ Selekcijom biramo roditelje za križanje, križamo ih, obavljamo mutaciju i to s
 Poznato je da se svaka rubikova kocka može riješiti u maksimalno 20 rotacija, zato će svaka jedinka biti predstavljena kao niz od 40 gena (cijelih vrijednosti) koji predstavljaju, redom, slijed rotacija koje je potrebno izvesti. Dozvoljeni brojevi za svaki gen su iz raspona $[0, 17]$.
 Vrijednosti iz raspona $[0, 12]$ predstavljaju obične operacije (rotacija svake strane u bilo kojem smjeru), dok vrijednosti iz raspona $[13, 17]$ predstavljaju složene operacije (dvostruke rotacije pojedine strane).
 
-%OVDJE UBACI PRIMJER RJEŠENJA
+\begin{figure}
+\centering
+\begin{tabular}{|c|c|c|c|c|}\hline
+2 & 0 & \dots & 7 & 15\\\hline
+\end{tabular}
+\caption{Primjer rješenja genetskog algoritma}
+
+\end{figure}
 
 \subsection{Genetski operatori i mjera sposobnosti}
 Korištena je troturnirska selekcija, za križanje je korišteno križanje s jednom i dvije točke prekida, a za mutaciju je implementiran poseban operator.
@@ -121,46 +148,69 @@ Koristi se operator mutacije koji će odrediti nakon koje je rotacije u kromosom
 
 Posebnost ovog problema i ovakve implementacije operatora je to što se mutacija i križanje ne koriste u kontekstu u kojem se inače koriste u genetskom algoritmu. Naime, križanje uobičajeno ne mijenja previše rješenje i služi za lokalno pretraživanje prostora stanja, a mutacija je zadužena da rješenje odvede u sasvim drugom smjeru. U ovom slučaju, događa se upravo obrnuta stvar, križanje obavlja posao mutacije, a mutacija posao križanja.
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\textwidth]{image/rubik_cube_scrambled.png}
+\caption{Prva mjera sposobnosti: brojanje koliko je oznaka na pravom mjestu (centralna kockica je nepomična i ona određuje boju cijele strane) = 7 (za prikazane 3 stranice, analogno se računa i za ostale)\\
+Druga mjera sposobnosti: brojanje ispravno pozicioniranih rubnih i kutnih kockica = 1 * 6 (kutna na gornjem desnom rubu, gore zelena, dolje bijela)}
+
+\end{figure}
+
 Implementirane su dvije različite mjere sposobnosti. 
 Prva mjera sposobnosti jednostavno broji koliko je boja na pravim mjestima kocke (ne brojeći centralni element svake strane jer je on fiksan). Maksimalna vrijednost ove mjere je 48.
 
 Druga mjera broji koliko je kutnih i rubnih kockica na pravim mjestima u pravoj orijentaciji. Maksimalna vrijednost ove mjere je 96 (svaka ispravna rubna kockica vrijedi 4, dok svaka ispravna kutna kokckica vrijedi 6, napravljeno za to da u slučaju kombinacije sa prvom mjerom svaka podmjera sudjeluje u jednakom broju).
 
-%UBACI PRIMJER RJEŠENJA I MJERA SPOSOBNOSTI
 
 \chapter{Genetsko programiranje}
-Ukratko što je GP i primjena na rubikovu kocku.
 
 \section{Opis genetskog programiranja}
 Genetsko programiranje također pripada evolucijskim algoritmima i koristi iste funkcije kao i genetski algoritam. Najveća razlika je prikaz rješenja. U genetskom algoritmu se rješenje uglavnom prikazuje kao niz gena, dok se u genetskom programiranju rješenje prikazuje kao stablo. Svako stablo se sastoji od funkcijskih \engl{Function} i završnih \engl{Terminal} čvorova. Završni čvorovi se nalaze u listovima stabla, dok funkcijski nešto rade sa podstablima kako bi odredili konačan rezultat.
 
 Rad algoritma je jednak genetskom, uz uvođenje dodatnih složenosti kod stvaranja inicijalne populacije te složenijih operatora križanja i mutacije.
 
-%PRIMJER GP STABLA
-
 \section{Primjena GP na problem rubikove kocke}
+\begin{figure}[h]
+\centering
+\begin{forest}
+  [IfEdgeCubieCorrect(0)
+    [IfCornerCubieCorrect(5)
+    	[\textit{1}]
+    	[\textit{11}]
+    ]
+    [\textit{15}]
+  ]
+\end{forest}
+
+\caption{Primjer jednog dobivenog rješenja genetskim programiranjem}
+\end{figure}
 Pokušaj genetskim programiranjem, za razliku od prethodnog pokušaja, za cilj ima pronaći najbolji program koji će u što manje koraka riješiti bilo koju konfiguraciju kocke, točnije, moći će odrediti najbolju rotaciju (ili niz rotacija) za bilo koje stanje kocke. 
 
 Potrebno je definirati dodatne funkcije, koje će za svaku rubnu ili kutnu kockicu odrediti je li na pravom mjestu ili ne. Ovisno o tome, funkcija će izvesti lijevo ili desno podstablo. 
 
-Završni čvorovi će biti cijeli brojevi koji predstavljaju operaciju koja se treba izvršiti.
+Završni čvorovi su cijeli brojevi koji predstavljaju operaciju koja se treba izvršiti.
 
-Svaki program se izvodi dok ne dođe do rješenja rubikove kocke ili dok dosegne dozvoljeni broj rotacija (50).
+Operatori križanja i mutacije koji se koriste su uobičajeni. Za križanje koristi se: zamjena čvorova, uniformno križanje \dots Za mutaciju koriste se: mutacija cijelog podstabla, mutacija čvora \dots
 
+Svaki program se izvodi dok ne dođe do rješenja rubikove kocke ili dok dosegne dozvoljeni broj rotacija.
 Korištene mjere sposobnosti su iste kao za genetski algoritam, uz to što se dodatno nagradi algoritam koji je prije došao do rješenja.
 
-
-
 \chapter{Rezultati}
-Opiši poražavajuće rezultate...
+Još nema rezultata...
 
 \chapter{Zaključak}
-Zaključi nešto.
+Nema ni zaključka bez rezultata...
 
 \bibliography{literatura}
 \bibliographystyle{fer}
 
 \chapter{Sažetak}
-Sažetak.
+Rubikova kocka je logička igra u kojoj se nizom rotacija pokušava doći do ciljnog stanja. Zbog brojnosti stanja, naivni algoritmi su neefikasni i potrebno je koristiti pametnija rješenja.
+
+Uobičajeni algoritmi za rješavanje rubikove kocke koriste teoriju grupa i činjenicu da kada se kocka nađe u nekom stanju, korištenjem nekog podskupa rotacija, ostat će u istoj grupi stanja i može samo prijeći u grupu bližu ciljnom rješenju.
+
+Ovaj seminarski rad bio je usmjeren na pokušaj rješavanja rubikove kocke evolucijskim algoritmima, genetskim algoritmom i genetskim programiranjem bez korištenja teorije grupa i sličnoga. Genetski algoritam se izvodi na samo jednoj konfiguraciji kocke i pokušava nju riješiti, dok se genetskim programiranjem pokušava doći do općenitog rješenja za svaku konfiguraciju rubikove kocke.
+
+ 
 
 \end{document}
