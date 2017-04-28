@@ -1,51 +1,44 @@
 package main.scala
 
-import scala.util.control.Breaks._;
-
-import org.jgap.Configuration
-import org.jgap.impl.DefaultConfiguration
-import org.jgap.impl.IntegerGene
-import org.jgap.Gene
-import org.jgap.Chromosome
-import org.jgap.Genotype
-import org.jgap.IChromosome
-import org.jgap.FitnessFunction
-import org.jgap.impl.MutationOperator
-import org.jgap.Population
-import org.jgap.RandomGenerator
+import scala.util.control.Breaks._
+import org.jgap._
+import org.jgap.impl._
 import main.java.GreedyMutation
+import main.scala.MainJGAP.{conf, rub}
+import org.jgap.event.EventManager
 
 object MainJGAP extends App {
+
+  if (args.length != 1) {
+    throw new IllegalArgumentException("Command line parameter expected: number of scrambles")
+  }
+
   var rub = new RubiksCube
 
-  val scramble = rub.scramble(8)
+  val scramble = rub.scramble(args(0).toInt)
   println(rub)
   println(rub.isSolved)
 
   println(rub.copy)
 
-  var conf: Configuration = new DefaultConfiguration
-  conf.setPreservFittestIndividual(false)
-  conf.setKeepPopulationSizeConstant(true)
-  conf.setFitnessFunction(new SideCompleteFitness(rub))
-  conf.addGeneticOperator(new GreedyMutation(conf, 1))
+  var conf: Configuration = new GAConfiguration(rub)
 
   val sampleGenes: List[Gene] = (for (i <- 1 to 40) yield new IntegerGene(conf, 0, 17)).toList
 
   val sampleChromosome = new Chromosome(conf, sampleGenes.toArray)
   conf.setSampleChromosome(sampleChromosome)
-
   conf.setPopulationSize(50)
 
   var population: Genotype = Genotype.randomInitialGenotype(conf)
 
-  for (i <- 1 to 1000) {
+breakable(for (i <- 1 to 1000) {
     population.evolve();
     val fittest: IChromosome = population.getFittestChromosome
 
     println("Gen " + i + ": current best = " + fittest.getFitnessValue);
     if (fittest.getFitnessValue >= 48.0) break
   }
+)
 
   println(population.getFittestChromosome)
 
@@ -56,21 +49,43 @@ object MainJGAP extends App {
   val best = population.getFittestChromosome
   
   def printCubeWithSolution(cube: RubiksCube, chromosome: IChromosome) = {
-    var cubeCopy = cube.copy
+    val cubeCopy = cube.copy
     println(chromosome.getApplicationData)
     for (i <- 0 until chromosome.getApplicationData.asInstanceOf[Int]) {
       cubeCopy.rotateSide(chromosome.getGene(i).getAllele.asInstanceOf[Int])
     }
     println(cubeCopy)
   }
-  
     
   println("THE SCRAMBLE SOLVED: ")
   println(rub.decode(scramble, scramble.length))
   
   println("STEPS TO REPRODUCE: ")
   println(rub.decode((best.getGenes map { x => x.getAllele.asInstanceOf[Int] }).toVector, best.getApplicationData.asInstanceOf[Int]))
-  
+
+}
+
+
+class GAConfiguration(rubiksCube: RubiksCube) extends Configuration {
+
+  this.setBreeder(new GABreeder)
+  this.setRandomGenerator(new StockRandomGenerator)
+  this.setEventManager(new EventManager)
+  this.setMinimumPopSizePercent(0)
+  this.setSelectFromPrevGen(0.6)
+  this.setKeepPopulationSizeConstant(true)
+  this.setFitnessEvaluator(new DefaultFitnessEvaluator)
+  this.setChromosomePool(new ChromosomePool)
+  this.setPreservFittestIndividual(true)
+  this.setKeepPopulationSizeConstant(true)
+  this.setFitnessFunction(new SideCompleteFitness(rubiksCube))
+  this.addGeneticOperator(new CrossoverOperator(this, 0.5))
+  this.addGeneticOperator(new GreedyMutation(this, 1))
+  this.addGeneticOperator(new MutationOperator(this, 10))
+  this.addNaturalSelector(new TournamentSelector(this, 5, 0.7), true)
+
+
+
 }
 
 
