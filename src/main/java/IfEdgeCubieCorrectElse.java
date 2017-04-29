@@ -30,15 +30,15 @@ public class IfEdgeCubieCorrectElse extends CommandGene implements IMutateable {
 	}
 	
 	@Override
-	public void execute_integer(ProgramChromosome c, int n, Object[] args) {
-		RubiksCube cube = (RubiksCube) c.getApplicationData();
+	public int execute_int(ProgramChromosome c, int n, Object[] args) {
+		RubiksCube cube = (RubiksCube) c.getIndividual().getApplicationData();
 		
 		int ret;
 
 		if (cube.getEdgeCubie(cubieIndex).isCorrect(cube)) {
-			ret = c.execute_integer(n, 0, args);
+			ret = c.execute_int(n, 0, args);
 		} else {
-			ret = c.execute_integer(n, 1, args);
+			ret = c.execute_int(n, 1, args);
 		}
 		
 		return ret;
