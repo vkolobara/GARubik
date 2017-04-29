@@ -84,8 +84,6 @@ class GAConfiguration(rubiksCube: RubiksCube) extends Configuration {
   this.addGeneticOperator(new MutationOperator(this, 10))
   this.addNaturalSelector(new TournamentSelector(this, 5, 0.7), true)
 
-
-
 }
 
 
