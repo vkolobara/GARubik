@@ -58,10 +58,10 @@ breakable(for (i <- 1 to 1000) {
   }
     
   println("THE SCRAMBLE SOLVED: ")
-  println(rub.decode(scramble, scramble.length))
+  println(RubiksCube.decode(scramble, scramble.length))
   
   println("STEPS TO REPRODUCE: ")
-  println(rub.decode((best.getGenes map { x => x.getAllele.asInstanceOf[Int] }).toVector, best.getApplicationData.asInstanceOf[Int]))
+  println(RubiksCube.decode((best.getGenes map { x => x.getAllele.asInstanceOf[Int] }).toVector, best.getApplicationData.asInstanceOf[Int]))
 
 }
 

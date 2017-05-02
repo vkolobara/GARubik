@@ -10,21 +10,31 @@ import org.jgap.gp.GPFitnessFunction
 import org.jgap.gp.IGPProgram
 import scala.util.control.Breaks._
 import org.jgap.gp.impl.DeltaGPFitnessEvaluator
+import org.jgap.impl.MutationOperator
 
 
 object MainGPJGAP extends App {
 
   var rub = new RubiksCube
-  rub.scramble(50)
+  val scramble = rub.scramble(1)
   
   val conf = GPRubik.createGPConfiguration(rub)
   var gp = GPRubik.createGenotype(conf)
   
   gp.evolve(1000)
-  
+
+  val fit = new GPRubikFitnessFunction(rub)
+
   println(gp.getAllTimeBest.getFitnessValue)
-  
-  
+
+  println(RubiksCube.decode(scramble, scramble.length))
+
+  val solution = fit getSteps gp.getAllTimeBest
+
+  println(RubiksCube.decode(solution.toVector, solution.length))
+
+  println(gp.getAllTimeBest.getChromosome(0).toStringDebug)
+
 }
 
 object GPRubik {
@@ -69,8 +79,23 @@ class GPRubikFitnessFunction(val rub: RubiksCube) extends GPFitnessFunction {
       cube.rotateSide(program.execute_int(0, new Array[Object](0)))
     })
     
-    maxFitness 
+    maxFitness
     
+  }
+
+  def getSteps(program: IGPProgram): List[Int] = {
+    var steps: List[Int] = Nil
+    val cube = rub.copy
+    breakable (
+    for (i <- 0 to 40) {
+      if (cube.isSolved) break
+      program.setApplicationData(cube)
+      val step = program.execute_int(0, new Array[Object](0))
+      steps = step :: steps
+      cube.rotateSide(step)
+    })
+
+    steps.reverse
   }
   
   def sumSides(cube: RubiksCube): Double = {

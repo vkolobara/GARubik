@@ -17,7 +17,7 @@
    :targets ("/home/vkolobara/git/GARubik/target/scala-2.10/classes")
    :test-targets ("/home/vkolobara/git/GARubik/target/scala-2.10/test-classes")
    :depends-on-modules nil
-   :compile-deps ("/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
+   :compile-deps ("/home/vkolobara/git/GARubik/lib/commons-lang-2.6.jar" "/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/git/GARubik/lib/log4j-1.2.17.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
    :runtime-deps nil
    :test-deps nil
    :doc-jars ("/home/vkolobara/git/GARubik/target/scala-2.10/garubik_2.10-0.1-SNAPSHOT-javadoc.jar" "/home/vkolobara/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.6-javadoc.jar")
@@ -29,7 +29,7 @@
     :targets ("/home/vkolobara/git/GARubik/target/scala-2.10/classes")
     :scalac-options ("-feature" "-deprecation" "-Xlint" "-Ywarn-dead-code" "-Ywarn-numeric-widen" "-Xfuture" "-Ymacro-no-expand")
     :javac-options nil
-    :library-jars ("/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
+    :library-jars ("/home/vkolobara/git/GARubik/lib/commons-lang-2.6.jar" "/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/git/GARubik/lib/log4j-1.2.17.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
     :library-sources ("/home/vkolobara/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar")
     :library-docs ("/home/vkolobara/git/GARubik/target/scala-2.10/garubik_2.10-0.1-SNAPSHOT-javadoc.jar" "/home/vkolobara/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.6-javadoc.jar")) (
     :id (:project "garubik" :config "test")
@@ -38,7 +38,7 @@
     :targets ("/home/vkolobara/git/GARubik/target/scala-2.10/test-classes")
     :scalac-options ("-feature" "-deprecation" "-Xlint" "-Ywarn-dead-code" "-Ywarn-numeric-widen" "-Xfuture" "-Ymacro-no-expand")
     :javac-options nil
-    :library-jars ("/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
+    :library-jars ("/home/vkolobara/git/GARubik/lib/commons-lang-2.6.jar" "/home/vkolobara/git/GARubik/lib/jgap.jar" "/home/vkolobara/git/GARubik/lib/log4j-1.2.17.jar" "/home/vkolobara/.sbt/boot/scala-2.10.6/lib/scala-library.jar")
     :library-sources ("/home/vkolobara/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar")
     :library-docs ("/home/vkolobara/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.10.6-javadoc.jar")))
 )

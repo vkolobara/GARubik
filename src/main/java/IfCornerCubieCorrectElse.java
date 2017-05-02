@@ -3,12 +3,14 @@ package main.java;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.gp.CommandGene;
 import org.jgap.gp.IMutateable;
+import org.jgap.util.ICloneable;
+
 import org.jgap.gp.impl.GPConfiguration;
 import org.jgap.gp.impl.ProgramChromosome;
 
 import main.scala.RubiksCube;
 
-public class IfCornerCubieCorrectElse extends CommandGene implements IMutateable {
+public class IfCornerCubieCorrectElse extends CommandGene implements ICloneable, IMutateable {
 	/**
 	 * 
 	 */
@@ -42,6 +44,15 @@ public class IfCornerCubieCorrectElse extends CommandGene implements IMutateable
 
 		return ret;
 
+	}
+
+	@Override
+	public Object clone() {
+		try {
+			return new IfCornerCubieCorrectElse(getGPConfiguration(), this.cubieIndex);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override

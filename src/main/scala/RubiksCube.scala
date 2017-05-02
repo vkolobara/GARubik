@@ -221,25 +221,6 @@ class RubiksCube {
     else rotateSideComp(operation % 12)
   }
 
-  def decode(genes: Vector[Int], index: Int): String = {
-
-    def decodeSimple(gene: Int): String = {
-      var symbol = "'"
-      if (gene % 2 == 0) symbol = ""
-
-      SIDES(gene / 2).toString + symbol
-    }
-
-    def decodeComplex(gene: Int): String = {
-      SIDES(gene % 12).toString + "2"
-    }
-
-    if (genes.isEmpty || index == 0) ""
-    else if (genes.head < 12) decodeSimple(genes.head) + " " + decode(genes.tail, index - 1)
-    else decodeComplex(genes.head) + " " + decode(genes.tail, index - 1)
-
-  }
-
   def rotateSideComp(side: Int) = {
     side match {
       case 0 => rotateFront(true); rotateFront(true);
@@ -300,5 +281,35 @@ class RubiksCube {
     sideToString(sides) + "\n"
   }
 
+}
+
+object RubiksCube {
+
+  final val FRONT = 'F'
+  final val BACK = 'B'
+  final val UP = 'U'
+  final val DOWN = 'D'
+  final val LEFT = 'L'
+  final val RIGHT = 'R'
+
+  final val SIDES = 'F' :: 'B' :: 'U' :: 'D' :: 'L' :: 'R' :: Nil
+
+  def decode(genes: Vector[Int], index: Int): String = {
+
+    def decodeSimple(gene: Int): String = {
+      var symbol = "'"
+      if (gene % 2 == 0) symbol = ""
+
+      SIDES(gene / 2).toString + symbol
+    }
+
+    def decodeComplex(gene: Int): String = {
+      SIDES(gene % 12).toString + "2"
+    }
+
+    if (genes.isEmpty || index == 0) ""
+    else if (genes.head < 12) decodeSimple(genes.head) + " " + decode(genes.tail, index - 1)
+    else decodeComplex(genes.head) + " " + decode(genes.tail, index - 1)
+  }
 }
 
