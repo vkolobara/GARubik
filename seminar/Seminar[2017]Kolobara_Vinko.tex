@@ -34,7 +34,7 @@ U ovom radu će se taj problem pokušati riješiti evolucijskim algoritmima, to�
 
 Za pristup genetskim algoritmom, ideja je učiti rješenje za samo jednu kocku koje će se prikazati kao niz rotacija (što kraći mogući) koje će dovesti do ciljnog stanja ili što bliže ciljnom stanju.
 
-S druge strane, pokušaj genetskim programiranjem bit će usmjeren na pronalaženje genetskog programa koji će bilo koju rubikovu kocku naći rješenje (ili doći dovoljno blizu rješenju) u što manjem broju rotacija. Točnije, za "svako stanje" će biti u stanju odrediti koja rotacija će ga dovesti u najbolje sljedeće stanje.
+S druge strane, pokušaj genetskim programiranjem bit će usmjeren na pronalaženje genetskog programa koji će bilo koju rubikovu kocku naći rješenje (ili doći dovoljno blizu rješenju) u što manjem broju rotacija. Točnije, za određeno stanje će biti u stanju odrediti koja rotacija će ga dovesti u najbolje sljedeće stanje.
 
 Ovaj problem otežava činjenica što je za navedeni problem jako teško naći funkciju koja će odrediti kvalitetu neke rotacije u nekom stanju. Teško je garantirati da se već ispravno pozicioniranih par strana kocke, neće pokvariti u procesu postavljanja ostalih strana.
 
@@ -159,7 +159,7 @@ Druga dobrota: brojanje ispravno pozicioniranih rubnih i kutnih kockica = 1 * 6 
 Implementirane su dvije različite dobrote. 
 Prva jednostavno broji koliko je boja na pravim mjestima kocke (ne brojeći centralni element svake strane jer je on fiksan). Maksimalna vrijednost ove mjere je 48, ali se skalira na $[0, 1]$.
 
-Druga mjera broji koliko je kutnih i rubnih kockica na pravim mjestima u pravoj orijentaciji i na to jos nadoda vrijednost prve mjere. Maksimalna vrijednost ove mjere je 148, također skalirano na $[0, 1]$ (svaka ispravna rubna kockica vrijedi 4, dok svaka ispravna kutna kokckica vrijedi 6, napravljeno zato da u slučaju kombinacije sa prvom mjerom svaka podmjera sudjeluje u jednakom broju).
+Druga mjera broji koliko je kutnih i rubnih kockica na pravim mjestima u pravoj orijentaciji i na to jos nadoda vrijednost prve mjere. Maksimalna vrijednost ove mjere je 148, također skalirano na $[0, 1]$ (svaka ispravna rubna kockica vrijedi 4, dok svaka ispravna kutna kockica vrijedi 6, napravljeno zato da u slučaju kombinacije sa prvom mjerom svaka podmjera sudjeluje u jednakom broju).
 
 
 \chapter{Genetsko programiranje}
@@ -210,52 +210,59 @@ Vjerojatnost nasumične mutacije & 0.05\\\hline
 \label{parameters}
 \end{figure}
 
-Na sljedećim grafovima prikazana je prosječna vrijednost prve dobrote (zbroj ispravnih boja) po generacijama.
+Na sljedećim grafovima prikazana je prosječna vrijednost funkcija dobrote po generacijama.
 
-  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
 			\includegraphics[width=0.47\textwidth]{../results/sumsides_fitness/50_scrambles/cross0,5greedy10mut20.png}
 			\includegraphics[width=0.47\textwidth]{../results/sumsides_fitness/20_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 50 (lijevo) i 20 (desno) miješanja kocke }
+			\caption{Prosječna vrijednost prve dobrote po generacijama za 50 (lijevo) i 20 (desno) miješanja kocke }
 		\end{figure}
 		
-		  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
 			\includegraphics[width=0.47\textwidth]{../results/sumsides_fitness/10_scrambles/cross0,5greedy10mut20.png}
 			\includegraphics[width=0.47\textwidth]{../results/sumsides_fitness/7_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 10 (lijevo) i 7 (desno) miješanja kocke }
+			\caption{Prosječna vrijednost prve dobrote po generacijama za 10 (lijevo) i 7 (desno) miješanja kocke }
 		\end{figure}
 		
-		  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
-			\includegraphics[width=0.6\textwidth]{../results/sumsides_fitness/5_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 5 miješanja kocke }
+			\includegraphics[width=0.47\textwidth]{../results/sumsides_fitness/5_scrambles/cross0,5greedy10mut20.png}
+			\caption{Prosječna vrijednost prve dobrote po generacijama za 5 miješanja kocke }
 		\end{figure}
 
-Sljedeći grafovi prikazuju prosječnu vrijednost druge dobrote (zbroj ispravno pozicioniranih rubnih i kutnih kockica) po generacijama.
-
-  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
 			\includegraphics[width=0.47\textwidth]{../results/cubies_fitness/50_scrambles/cross0,5greedy10mut20.png}
 			\includegraphics[width=0.47\textwidth]{../results/cubies_fitness/20_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 50 (lijevo) i 20 (desno) miješanja kocke }
+			\caption{Prosječna vrijednost druge dobrote po generacijama za 50 (lijevo) i 20 (desno) miješanja kocke }
 		\end{figure}
 
-  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
 			\includegraphics[width=0.47\textwidth]{../results/cubies_fitness/10_scrambles/cross0,5greedy10mut20.png}
 			\includegraphics[width=0.47\textwidth]{../results/cubies_fitness/7_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 10 (lijevo) i 7 (desno) miješanja kocke }
+			\caption{Prosječna vrijednost druge dobrote po generacijama za 10 (lijevo) i 7 (desno) miješanja kocke }
 		\end{figure}
     
-  		\begin{figure}[h]
+  		\begin{figure}[ht!]
 			\centering
-			\includegraphics[width=0.6\textwidth]{../results/cubies_fitness/5_scrambles/cross0,5greedy10mut20.png}
-			\caption{Prosječna vrijednost dobrote po generacijama za 5 miješanja kocke }
+			\includegraphics[width=0.47\textwidth]{../results/cubies_fitness/5_scrambles/cross0,5greedy10mut20.png}
+			\caption{Prosječna vrijednost druge dobrote po generacijama za 5 miješanja kocke }
 		\end{figure}
 
-Iz grafova se može vidjeti da za mali broj miješanja kocke, brzo dobijemo rješenja koja su blizu ciljnog stanja (po dobroti, ne nužno i po broju koraka potrebnih do ciljnog stanja). Također za mali broj miješanja često dođemo i do konačnog rješenja (u 70\% za broj miješanja manji od 10). 
-S druge strane, broj miješanja veći ili jednak 10, uzrokuje nemogućnost pronalaska ispravnog rješenja u većini slučajeva (manje od 10\%). 
+\clearpage
+
+Iz grafova se može vidjeti da za mali broj miješanja kocke, brzo dobijemo rješenja koja su blizu ciljnog stanja (po dobroti, ne nužno i po broju koraka potrebnih do ciljnog stanja). Također za mali broj miješanja često dođemo i do konačnog rješenja. 
+S druge strane, broj miješanja veći ili jednak 10, uzrokuje nemogućnost pronalaska ispravnog rješenja u većini slučajeva. Navedena ovisnost prikazana je na slici \ref{ovisnost}
+
+  		\begin{figure}[ht!]
+			\centering
+			\includegraphics[width=\textwidth]{../results/prob.png}
+			\caption{Vjerojatnost pronalaska rješenja u ovisnosti o broju miješanja kocke (udaljenosti od ciljnog stanja)}
+			\label{ovisnost}
+		\end{figure}
 
 Uspoređujući dvije mjere dobrote vidimo da nema neke razlike u uspješnosti rješenja u ovisnosti o mjeri. Jedina razlika je iznos prosječne dobrote, ali ta razlika nastaje zbog dodavanja težina rubnim i kutnim kockicama što uzrokuje veće skokove u iznosu dobrote.
 
